@@ -52,6 +52,7 @@ int main(int args, char **argv)
     }
 
     size = st.st_size;
+    printf("File size: %zu bytes\n", size);
 
     if (size == 0)
     {
