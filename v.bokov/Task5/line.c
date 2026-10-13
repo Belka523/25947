@@ -18,6 +18,12 @@ int main(int args, char **argv)
 
     int fopen = open(argv[1], O_RDONLY);
 
+    if (fopen == -1)
+    {
+        perror("open");
+        return 1;
+    }
+
     struct LineInfo table[100];
     int lines = 0;
 
@@ -28,7 +34,14 @@ int main(int args, char **argv)
     {
         if (c == '\n')
         {
-            long pos = lseek(fopen, 0L, 1);
+            long pos = lseek(fopen, 0L, SEEK_CUR);
+
+            if (lines >= 100)
+            {
+                printf("Too many lines\n");
+                close(fopen);
+                return 1;
+            }
 
             table[lines].pos = start;
             table[lines].len = pos - start;
@@ -37,8 +50,25 @@ int main(int args, char **argv)
             start = pos;
         }
     }
+
     long file_size = lseek(fopen, 0L, SEEK_END);
+
+    if (file_size > start)
+    {
+        if (lines >= 100)
+        {
+            printf("Too many lines\n");
+            close(fopen);
+            return 1;
+        }
+
+        table[lines].pos = start;
+        table[lines].len = file_size - start;
+        lines++;
+    }
+
     printf("File size: %ld bytes\n", file_size);
+
     for (int i = 0; i < lines; i++)
     {
         printf("Line %d: pos = %ld, len = %d\n",
@@ -50,6 +80,7 @@ int main(int args, char **argv)
     while (1)
     {
         printf("number line:");
+        fflush(stdout);
 
         if (scanf("%d", &number) != 1)
         {
@@ -63,24 +94,34 @@ int main(int args, char **argv)
 
         int index = number - 1;
 
-        lseek(fopen, table[index].pos, 0);
+        if (index < 0 || index >= lines)
+        {
+            printf("Invalid line number\n");
+            continue;
+        }
+
+        lseek(fopen, table[index].pos, SEEK_SET);
 
         char *buffer = malloc(table[index].len + 1);
+
+        if (buffer == NULL)
+        {
+            perror("malloc");
+            break;
+        }
 
         read(fopen, buffer, table[index].len);
         buffer[table[index].len] = '\0';
 
         printf("%s", buffer);
 
-        free(buffer);
-    }
-    long end = lseek(fopen, 0L, SEEK_CUR);
+        if (table[index].len > 0 &&
+            buffer[table[index].len - 1] != '\n')
+        {
+            printf("\n");
+        }
 
-    if (end > start && lines < 100)
-    {
-        table[lines].pos = start;
-        table[lines].len = end - start;
-        lines++;
+        free(buffer);
     }
 
     close(fopen);
