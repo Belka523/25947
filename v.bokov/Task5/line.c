@@ -4,7 +4,7 @@
 #include <fcntl.h>
 
 struct LineInfo {
-    long arr;
+    long pos;
     int len;
 };
 
@@ -30,7 +30,7 @@ int main(int args, char **argv)
         {
             long pos = lseek(fopen, 0L, 1);
 
-            table[lines].arr = start;
+            table[lines].pos = start;
             table[lines].len = pos - start;
 
             lines++;
@@ -40,8 +40,8 @@ int main(int args, char **argv)
 
     for (int i = 0; i < lines; i++)
     {
-        printf("Line %d: arr = %ld, len = %d\n",
-               i + 1, table[i].arr, table[i].len);
+        printf("Line %d: pos = %ld, len = %d\n",
+               i + 1, table[i].pos, table[i].len);
     }
 
     int number;
@@ -62,7 +62,7 @@ int main(int args, char **argv)
 
         int index = number - 1;
 
-        lseek(fopen, table[index].arr, 0);
+        lseek(fopen, table[index].pos, 0);
 
         char *buffer = malloc(table[index].len + 1);
 
