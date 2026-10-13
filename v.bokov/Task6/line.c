@@ -9,7 +9,7 @@ struct LineInfo {
     int len;
 };
 
-int fopen;
+int fd;
 
 void alarm_handler(int sig)
 {
@@ -19,9 +19,9 @@ void alarm_handler(int sig)
 
     write(1, "\nTime is up!\n", 13);
 
-    lseek(fopen, 0L, 0);
+    lseek(fd, 0L, 0);
 
-    while (read(fopen, &c, 1) > 0)
+    while (read(fd, &c, 1) > 0)
     {
         write(1, &c, 1);
     }
@@ -37,9 +37,9 @@ int main(int args, char **argv)
         return 1;
     }
 
-    fopen = open(argv[1], O_RDONLY);
+    fd = open(argv[1], O_RDONLY);
 
-    if (fopen == -1)
+    if (fd == -1)
     {
         perror("open");
         return 1;
@@ -51,11 +51,11 @@ int main(int args, char **argv)
     char c;
     long start = 0;
 
-    while (read(fopen, &c, 1) > 0)
+    while (read(fd, &c, 1) > 0)
     {
         if (c == '\n')
         {
-            long pos = lseek(fopen, 0L, 1);
+            long pos = lseek(fd, 0L, 1);
 
             table[lines].arr = start;
             table[lines].len = pos - start;
@@ -107,11 +107,11 @@ int main(int args, char **argv)
             continue;
         }
 
-        lseek(fopen, table[index].arr, 0);
+        lseek(fd, table[index].arr, 0);
 
         char *buffer = malloc(table[index].len + 1);
 
-        read(fopen, buffer, table[index].len);
+        read(fd, buffer, table[index].len);
         buffer[table[index].len] = '\0';
 
         printf("%s", buffer);
@@ -119,7 +119,7 @@ int main(int args, char **argv)
         free(buffer);
     }
 
-    close(fopen);
+    close(fd);
 
     return 0;
 }
