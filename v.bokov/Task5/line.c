@@ -37,7 +37,8 @@ int main(int args, char **argv)
             start = pos;
         }
     }
-
+    long file_size = lseek(fopen, 0L, SEEK_END);
+    printf("File size: %ld bytes\n", file_size);
     for (int i = 0; i < lines; i++)
     {
         printf("Line %d: pos = %ld, len = %d\n",
@@ -72,6 +73,14 @@ int main(int args, char **argv)
         printf("%s", buffer);
 
         free(buffer);
+    }
+    long end = lseek(fopen, 0L, SEEK_CUR);
+
+    if (end > start && lines < 100)
+    {
+        table[lines].pos = start;
+        table[lines].len = end - start;
+        lines++;
     }
 
     close(fopen);
