@@ -20,10 +20,16 @@ void alarm_handler(int sig)
     (void)sig;
 
     const char msg[] = "\nTime is up!\n";
+
     fwrite(msg, 1, sizeof(msg) - 1, stdout);
     fwrite(file, 1, size, stdout);
-    fflush(stdout);
 
+    if (size > 0 && file[size - 1] != '\n')
+    {
+        fwrite("\n", 1, 1, stdout);
+    }
+
+    fflush(stdout);
     _exit(0);
 }
 
