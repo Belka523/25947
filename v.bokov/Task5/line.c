@@ -10,6 +10,12 @@ struct LineInfo {
 
 int main(int args, char **argv)
 {
+    if (args < 2)
+    {
+        printf("Enter filename\n");
+        return 1;
+    }
+
     int fopen = open(argv[1], O_RDONLY);
 
     struct LineInfo table[100];
